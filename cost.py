@@ -2,7 +2,30 @@ import pandas as pd
 import numpy as np
 
 
-def select_model():
+def get_k_th_score_params(grid_, k: int):
+    idx_ = list(grid_.cv_results_['rank_test_score']).index(k)
+    param_ = grid_.cv_results_['params'][idx_]
+    score_ = grid_.cv_results_['mean_test_score'][idx_]
+    return score_, param_
+
+
+def plot_true_pred_figure(y_true, y_pred, title=None):
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+    from sklearn.metrics import r2_score
+    r2_ = r2_score(y_true, y_pred)
+    from matplotlib import pyplot as plt
+    plt.scatter(y_true, y_pred)
+    max_v = np.max([y_pred, y_true])
+    plt.plot([0, max_v], [0, max_v], color='red')
+    plt.xlabel('y_true')
+    plt.ylabel('y_pred')
+    title = str(r2_) + " " + str(title) if title else str(r2_)
+    plt.title(title)
+    plt.show()
+
+
+if __name__ == '__main__':
     """
     模型初选. 观察score前n名的params, 可以发现这些模型均使用了random_forest模型.
     :return 网格搜索结果 grid
@@ -77,8 +100,6 @@ def select_model():
     score = grid.score(X_test, y_test)
     print(score)
     print(grid.best_params_)
-    return grid
 
-
-if __name__ == '__main__':
-    grid = select_model()
+    plot_true_pred_figure(y_test, grid.predict(X_test), "best params on test set")
+    plot_true_pred_figure(y_train, grid.predict(X_train), "best params on train set")
