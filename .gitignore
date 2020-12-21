@@ -3,3 +3,6 @@
 
 # too big
 dataset/
+
+# checkpoint
+checkpoints/
